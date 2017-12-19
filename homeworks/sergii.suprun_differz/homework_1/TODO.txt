@@ -1,0 +1,1 @@
+Create own homework directory using described template and add it to the repo via pull request.
