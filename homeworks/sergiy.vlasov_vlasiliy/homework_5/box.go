@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/vlasiliy/go-course-2017/homeworks/sergiy.vlasov_vlasiliy/homework_5/shapes"
+	"github.com/MastersAcademy/go-course-2017/homeworks/sergiy.vlasov_vlasiliy/homework_5/shapes"
 	"math/rand"
 	"fmt"
 )
