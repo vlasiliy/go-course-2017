@@ -1,11 +1,14 @@
 package main
 
-import "github.com/differz/go-course-2017/homeworks/sergii.suprun_differz/homework_4/linkedlist"
 import "fmt"
+
+import "github.com/MastersAcademy/go-course-2017/homeworks/sergii.suprun_differz/homework_4/linkedlist"
+import "github.com/MastersAcademy/go-course-2017/homeworks/sergii.suprun_differz/homework_4/list"
 
 func main() {
 
-	list := linkedlist.New()
+	var list list.List
+	list = linkedlist.New()
 
 	list.Add("element 0")
 	list.Add("element 1")

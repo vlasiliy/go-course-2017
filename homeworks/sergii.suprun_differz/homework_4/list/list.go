@@ -4,9 +4,10 @@ package list
 type List interface {
 	Add(e interface{})
 	Insert(index int, e interface{})
-	Set(index int, e interface{})
+	Set(index int, e interface{}) error
 	Remove(e interface{}) bool
-	Get(index int) interface{}
+	Get(index int) (interface{}, error)
 	Size() int
-	IsEmpty() int
+	IsEmpty() bool
+	String() string
 }

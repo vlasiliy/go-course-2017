@@ -1,2 +1,14 @@
-.vscode
+# IDE
 debug
+.idea
+.vscode
+*.iml
+*.iws
+
+# Mac
+.DS_Store
+
+# Gradle
+.gradle
+
+TEMP.txt

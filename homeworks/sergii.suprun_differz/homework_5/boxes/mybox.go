@@ -1,6 +1,7 @@
 package boxes
 
 import (
+	"log"
 	"math/rand"
 	"sort"
 	"strconv"
@@ -9,19 +10,35 @@ import (
 	"github.com/MastersAcademy/go-course-2017/homeworks/sergii.suprun_differz/homework_5/shapes"
 )
 
+type StateType int
+
+const (
+	EmptyState StateType = iota
+	ByCorner1
+	ByCorner2
+	ByCorner3
+	ByCorner4
+	RandomState
+)
+
 type MyBox struct {
 	n     int
 	x     int
-	state int
+	state StateType
 	box   []shapes.Shaper
+	len   int
+	q     int
 }
 
 func NewMyBox(n int, x int) (BlackBoxer, error) {
 	return &MyBox{
 			n:     n,
 			x:     x,
-			state: 0,
-			box:   []shapes.Shaper{}},
+			state: EmptyState,
+			box:   []shapes.Shaper{},
+			len:   n / x,
+			q:     (n / x) * (n / x),
+		},
 		nil
 }
 
@@ -29,7 +46,7 @@ func (b *MyBox) IsEmpty() bool {
 	return len(b.box) == 0
 }
 
-func (b *MyBox) GetState() int {
+func (b *MyBox) GetState() StateType {
 	return b.state
 }
 
@@ -50,48 +67,52 @@ func (b *MyBox) String() string {
 }
 
 func (b *MyBox) Generate() {
-	usedNames := shapes.GetAvailable()
-	x := strconv.Itoa(b.x)
-	k := b.n / b.x
-
+	names := shapes.GetAvailable()
 	rand.Seed(time.Now().UnixNano())
-	for i := 0; i < k*k; i++ {
-		j := rand.Intn(len(usedNames))
-		shape, _ := shapes.Create(map[string]string{"SHAPE": usedNames[j], "X": x})
+	b.state = RandomState
+	for i := 0; i < b.q; i++ {
+		j := rand.Intn(len(names))
+		shape, err := shapes.Create(names[j], b.x)
+		if err != nil {
+			log.Panicf("Cant create %s: ", names[j])
+		}
 		b.box = append(b.box, shape)
 	}
 }
 
-func (b *MyBox) Shake(corner int) {
+func (b *MyBox) Shake(corner StateType) {
 	index := 0
-	k := b.n / b.x
-	t := make([]shapes.Shaper, k*k)
-
+	mb := make([]shapes.Shaper, b.q)
 	sort.Sort(shapes.ByWeight(b.box))
 
-	for i := 0; i < k; i++ {
-		for j, ii := 0, i; j <= i; j, ii = j+1, ii-1 {
-			direct := b.box[index]
-			reverse := b.box[k*k-index-1]
+	for n := 0; n < b.len; n++ {
+		for i, j := 0, n; i <= n; i, j = i+1, j-1 {
+			dir := b.box[index]
+			rev := b.box[b.q-index-1]
+			index++
+
+			x := (b.len - 1 - j) * b.len
+			y := b.len - 1 - i
+			z := j * b.len
+
 			switch corner {
-			case 1:
-				t[ii*k+j] = direct
-				t[(k-ii-1)*k+k-j-1] = reverse
-			case 2:
-				t[ii*k+k-j-1] = direct
-				t[(k-ii-1)*k+j] = reverse
-			case 3:
-				t[(k-ii-1)*k+j] = direct
-				t[ii*k+k-j-1] = reverse
-			case 4:
-				t[(k-ii-1)*k+k-j-1] = direct
-				t[ii*k+j] = reverse
+			case ByCorner1:
+				mb[z+i] = dir
+				mb[x+y] = rev
+			case ByCorner2:
+				mb[y+z] = dir
+				mb[x+i] = rev
+			case ByCorner3:
+				mb[x+i] = dir
+				mb[y+z] = rev
+			case ByCorner4:
+				mb[x+y] = dir
+				mb[z+i] = rev
 			default:
 				return
 			}
-			index++
 		}
 	}
-	b.box = t
 	b.state = corner
+	b.box = mb
 }
